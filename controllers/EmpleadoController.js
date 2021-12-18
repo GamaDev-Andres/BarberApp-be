@@ -1,36 +1,37 @@
 const bcryptjs = require("bcryptjs");
 const { response } = require("express");
-const Usuario = require("../models/User");
 const { generarToken } = require("../helpers/jwt");
 
-exports.crearUsuario = async (req, res = response) => {
-  console.log(req.body);
+const Empleado = require("../models/Empleado");
+
+exports.crearEmpleado = async (req, res = response) => {
   const { email, password } = req.body;
 
   try {
     //verificamos email repetido
-    let user = await Usuario.findOne({ email });
-    if (user) {
+    let empleado = await Empleado.findOne({ email });
+    if (empleado) {
       return res.status(400).json({
         ok: false,
-        msg: "Ya existe un usuario con este correo",
+        msg: "Ya existe un empleado con este correo",
       });
     }
     //creamos user
-    user = new Usuario(req.body);
+    let NuevoEmpleado = new Empleado(req.body);
     //encriptamos contraseña
     const salt = await bcryptjs.genSalt(10);
-    user.password = await bcryptjs.hash(password, salt);
+    NuevoEmpleado.password = await bcryptjs.hash(password, salt);
     //guardamos en base de datos
-    await user.save();
+    await NuevoEmpleado.save();
+    const { id, nombre, cortes, perfil } = NuevoEmpleado;
     //generamos token
-    const token = await generarToken(user.id, user.nombre);
+    const token = await generarToken(NuevoEmpleado.id, NuevoEmpleado.nombre);
     //respondemos
     res.status(201).json({
       ok: true,
-      id: user.id,
+      id: id,
       token,
-      nombre: user.nombre,
+      empleado: { nombre, cortes, perfil },
     });
   } catch (error) {
     console.log(error);
@@ -41,32 +42,36 @@ exports.crearUsuario = async (req, res = response) => {
   }
 };
 
-exports.updateUserName = async (req, res = response) => {
-  const userId = req.params.id;
+exports.updateEmpleado = async (req, res = response) => {
+  const emplId = req.params.id;
 
   try {
-    const user = await Usuario.findById(userId);
+    const empleado = await Empleado.findById(emplId);
     const id = req.id;
-    if (!user) {
+    if (!empleado) {
       return res.status(404).json({
         ok: false,
-        msg: "No existe user con ese id",
+        msg: "No existe empleado con ese id",
       });
     }
-    if (user.id !== id) {
+    if (empleado.id !== id) {
       return res.status(401).json({
         ok: false,
-        msg: "Este usuario no tiene permitido actualizar esta informacion",
+        msg: "Este empleado no tiene permitido actualizar esta informacion",
       });
     }
-    const newUser = { ...req.body };
-    await Usuario.findByIdAndUpdate(id, newUser, {
-      new: true,
-    });
-
+    const newEmpleado = { ...req.body };
+    const empleadoActualizado = await Empleado.findByIdAndUpdate(
+      id,
+      newEmpleado,
+      {
+        new: true,
+      }
+    );
+    const { nombre, perfil, cortes } = empleadoActualizado;
     res.json({
       ok: true,
-      newNombre: req.body.nombre,
+      newEmpleado: { nombre, perfil, cortes },
       id,
     });
   } catch (error) {
@@ -77,18 +82,18 @@ exports.updateUserName = async (req, res = response) => {
     });
   }
 };
-exports.loginUser = async (req, res = response) => {
+exports.loginEmpleado = async (req, res = response) => {
   const { email, password } = req.body;
   try {
-    const user = await Usuario.findOne({ email });
-    console.log(user);
-    if (!user)
+    const empleado = await Empleado.findOne({ email });
+    console.log(empleado);
+    if (!empleado)
       return res.status(400).json({
         ok: false,
         msg: "credenciales incorrectas",
       });
-    const { id, nombre } = user;
-    const validPassword = bcryptjs.compareSync(password, user.password);
+    const { id, nombre, cortes, perfil } = empleado;
+    const validPassword = bcryptjs.compareSync(password, empleado.password);
     if (!validPassword) {
       return res.status(400).json({
         ok: false,
@@ -101,7 +106,7 @@ exports.loginUser = async (req, res = response) => {
       ok: true,
       token,
       id,
-      nombre,
+      empleado: { nombre, cortes, perfil },
     });
   } catch (error) {
     console.log(error);
