@@ -4,9 +4,8 @@ const Usuario = require("../models/User");
 const { generarToken } = require("../helpers/jwt");
 
 exports.crearUsuario = async (req, res = response) => {
-  console.log(req.body);
   const { email, password } = req.body;
-
+  console.log(req.body);
   try {
     //verificamos email repetido
     let user = await Usuario.findOne({ email });
@@ -28,9 +27,12 @@ exports.crearUsuario = async (req, res = response) => {
     //respondemos
     res.status(201).json({
       ok: true,
-      id: user.id,
       token,
-      nombre: user.nombre,
+      user: {
+        type: "user",
+        id: user.id,
+        nombre: user.nombre,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -100,8 +102,11 @@ exports.loginUser = async (req, res = response) => {
     res.json({
       ok: true,
       token,
-      id,
-      nombre,
+      user: {
+        id,
+        nombre,
+        type: "user",
+      },
     });
   } catch (error) {
     console.log(error);

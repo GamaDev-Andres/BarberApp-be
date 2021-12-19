@@ -29,9 +29,15 @@ exports.crearEmpleado = async (req, res = response) => {
     //respondemos
     res.status(201).json({
       ok: true,
-      id: id,
       token,
-      empleado: { nombre, cortes, perfil },
+      id: id,
+      user: {
+        id,
+        nombre,
+        cortes,
+        perfil,
+        type: "empleado",
+      },
     });
   } catch (error) {
     console.log(error);
@@ -71,8 +77,7 @@ exports.updateEmpleado = async (req, res = response) => {
     const { nombre, perfil, cortes } = empleadoActualizado;
     res.json({
       ok: true,
-      newEmpleado: { nombre, perfil, cortes },
-      id,
+      user: { id, nombre, perfil, cortes, type: "empleado" },
     });
   } catch (error) {
     console.log(error);
@@ -105,7 +110,14 @@ exports.loginEmpleado = async (req, res = response) => {
     res.json({
       ok: true,
       token,
-      id,
+      user: {
+        id,
+        nombre,
+        cortes,
+        perfil,
+        type: "empleado",
+      },
+
       empleado: { nombre, cortes, perfil },
     });
   } catch (error) {
