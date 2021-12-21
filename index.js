@@ -14,6 +14,7 @@ app.get("/api/refresh", validarJWT, renovationToken);
 app.use("/api/users", require("./routes/users"));
 app.use("/api/empleados", require("./routes/empleado"));
 app.use("/api/admin", require("./routes/admin"));
+app.use("/api/cita", require("./routes/cita"));
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
