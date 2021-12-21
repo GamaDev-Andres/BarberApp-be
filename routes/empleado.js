@@ -4,6 +4,7 @@ const {
   updateEmpleado,
   loginEmpleado,
   crearEmpleado,
+  obtenerEmpleados,
 } = require("../controllers/EmpleadoController");
 const { validarCampos } = require("../middlewares/validar-campos");
 const { validarJWT } = require("../middlewares/validarJWT");
@@ -51,5 +52,7 @@ router.put(
   validarCampos,
   updateEmpleado
 );
-
+//obtener 1 empleado
+router.get("/", obtenerEmpleados);
+//obtener empleados
 module.exports = router;

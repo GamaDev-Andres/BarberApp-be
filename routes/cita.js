@@ -4,6 +4,7 @@ const {
   crearCita,
   actualizarCita,
   eliminarCita,
+  obtenerCitas,
 } = require("../controllers/citasController");
 const { validarCampos } = require("../middlewares/validar-campos");
 const { validarJWT } = require("../middlewares/validarJWT");
@@ -26,4 +27,7 @@ router.post(
 router.put("/update/:id", actualizarCita);
 //eliminar cita
 router.delete("/delete/:id", eliminarCita);
+//obtener citas
+router.get("/", obtenerCitas);
+
 module.exports = router;

@@ -3,6 +3,7 @@ const { response } = require("express");
 const { generarToken } = require("../helpers/jwt");
 
 const Empleado = require("../models/Empleado");
+const Usuario = require("../models/User");
 
 exports.crearEmpleado = async (req, res = response) => {
   const { email, password } = req.body;
@@ -119,6 +120,36 @@ exports.loginEmpleado = async (req, res = response) => {
       },
 
       empleado: { nombre, cortes, perfil },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "error en el servidor",
+    });
+  }
+};
+exports.obtenerEmpleados = async (req, res = response) => {
+  try {
+    const empleado = await Empleado.findById(req.id);
+    const cliente = await Usuario.findById(req.id);
+    if (empleado) {
+      return res.status(401).json({
+        ok: false,
+        msg: "un empleado no puede solicitar estos datos",
+      });
+    }
+    if (!cliente) {
+      return res.status(404).json({
+        ok: false,
+        msg: "id en el token invalido",
+      });
+    }
+    const empleados = await Empleado.find().select("-email -password -__v");
+    console.log(empleados);
+    res.json({
+      ok: true,
+      empleados,
     });
   } catch (error) {
     console.log(error);
