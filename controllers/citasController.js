@@ -37,8 +37,6 @@ exports.actualizarCita = async (req, res = response) => {
         msg: "La cita que intenta editar no existe",
       });
     }
-    console.log(req.body);
-    console.log(req.body.estado);
     const cliente = await Usuario.findById(req.id);
     const empleado = await Empleado.findById(req.id);
     if (!cliente && !empleado) {
@@ -100,20 +98,6 @@ exports.actualizarCita = async (req, res = response) => {
         msg: "Cita actualizada correctamente",
       });
     }
-
-    //recordemos que el body puede que no nos traiga el id del cliente
-    // const nuevaCita = {
-    //   ...req.body,
-    //   cliente: req.id,
-    // };
-    // const citaActualizada = await Cita.findByIdAndUpdate(idCita, nuevaCita, {
-    //   new: true,
-    // });
-    // res.json({
-    //   ok: true,
-    //   citaActualizada,
-    //   msg: "Cita actualizada correctamente",
-    // });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -150,7 +134,6 @@ exports.eliminarCita = async (req, res = response) => {
     });
   } catch (error) {
     console.log(error);
-    console.log(error);
     res.status(500).json({
       ok: false,
       msg: "error en el servidor",
@@ -173,7 +156,6 @@ exports.obtenerCitas = async (req, res = response) => {
     const citas = empleado
       ? await Cita.find({ barbero: idSolicitante })
       : await Cita.find({ cliente: idSolicitante });
-    console.log(citas);
     res.json({
       ok: true,
       citas,

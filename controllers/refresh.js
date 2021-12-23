@@ -4,11 +4,9 @@ const Empleado = require("../models/Empleado");
 const User = require("../models/User");
 
 const renovationToken = async (req, res = response) => {
-  const { id, nombre } = req;
-
   try {
-    const empleado = await Empleado.findById(id);
-    const user = await User.findById(id);
+    const empleado = await Empleado.findById(req.id);
+    const user = await User.findById(req.id);
     if (!empleado && !user) {
       return res.status(400).json({
         ok: false,
@@ -21,19 +19,20 @@ const renovationToken = async (req, res = response) => {
         msg: "hay un user y empleado con el mismo id",
       });
     }
-    const token = await generarToken(id, nombre);
     if (user) {
+      const token = await generarToken(req.id, user.nombre);
       res.json({
         ok: true,
         token,
         user: {
           type: "user",
-          id,
-          nombre,
+          id: user.id,
+          nombre: user.nombre,
         },
       });
     } else {
       const { id, nombre, cortes, perfil } = empleado;
+      const token = await generarToken(id, nombre);
       res.json({
         ok: true,
         token,

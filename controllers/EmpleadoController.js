@@ -92,7 +92,6 @@ exports.loginEmpleado = async (req, res = response) => {
   const { email, password } = req.body;
   try {
     const empleado = await Empleado.findOne({ email });
-    console.log(empleado);
     if (!empleado)
       return res.status(400).json({
         ok: false,
@@ -146,7 +145,6 @@ exports.obtenerEmpleados = async (req, res = response) => {
       });
     }
     const empleados = await Empleado.find().select("-email -password -__v");
-    console.log(empleados);
     res.json({
       ok: true,
       empleados,

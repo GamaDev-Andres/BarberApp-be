@@ -5,7 +5,6 @@ const { generarToken } = require("../helpers/jwt");
 
 exports.crearUsuario = async (req, res = response) => {
   const { email, password } = req.body;
-  console.log(req.body);
   try {
     //verificamos email repetido
     let user = await Usuario.findOne({ email });
@@ -83,7 +82,6 @@ exports.loginUser = async (req, res = response) => {
   const { email, password } = req.body;
   try {
     const user = await Usuario.findOne({ email });
-    console.log(user);
     if (!user)
       return res.status(400).json({
         ok: false,
