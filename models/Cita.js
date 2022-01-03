@@ -11,7 +11,7 @@ const CitaSchema = mongoose.Schema({
     ref: "Usuario",
   },
   observaciones: String,
-  estado: { type: Boolean, default: false },
+  estado: { type: String, default: "pendiente" },
   fecha: {
     type: Date,
     required: true,

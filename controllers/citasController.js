@@ -80,11 +80,6 @@ exports.actualizarCita = async (req, res = response) => {
           msg: "No tiene permiso de actualizar esta cita",
         });
       }
-      // const nuevaCita = {
-      //   ...req.body,
-      //   estado:
-      //   barbero: req.id,
-      // };
       const citaActualizada = await Cita.findByIdAndUpdate(
         idCita,
         { estado: req.body.estado },
@@ -154,8 +149,12 @@ exports.obtenerCitas = async (req, res = response) => {
     }
 
     const citas = empleado
-      ? await Cita.find({ barbero: idSolicitante })
-      : await Cita.find({ cliente: idSolicitante });
+      ? await Cita.find({ barbero: idSolicitante }).populate("cliente", {
+          nombre: 1,
+        })
+      : await Cita.find({ cliente: idSolicitante }).populate("barbero", {
+          nombre: 1,
+        });
     res.json({
       ok: true,
       citas,
