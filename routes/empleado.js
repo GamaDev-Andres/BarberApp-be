@@ -5,6 +5,7 @@ const {
   loginEmpleado,
   crearEmpleado,
   obtenerEmpleados,
+  deleteCortesEmpleado,
 } = require("../controllers/EmpleadoController");
 const { validarCampos } = require("../middlewares/validar-campos");
 const { validarJWT } = require("../middlewares/validarJWT");
@@ -51,6 +52,18 @@ router.put(
   [check(["password", "email"], "estos campos no se pueden cambiar").isEmpty()],
   validarCampos,
   updateEmpleado
+);
+//eliminar corte
+router.put(
+  "/deletecita/:id",
+  [
+    check(
+      ["password", "email", "perfil", "calificacion", "nombre"],
+      "estos campos no se pueden cambiar"
+    ).isEmpty(),
+  ],
+  validarCampos,
+  deleteCortesEmpleado
 );
 //obtener 1 empleado
 router.get("/", obtenerEmpleados);

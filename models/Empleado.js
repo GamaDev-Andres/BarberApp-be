@@ -20,6 +20,12 @@ const EmpleadoSchema = mongoose.Schema({
     descripcion: String,
     foto: String,
   }),
+  calificacion: [
+    mongoose.Schema({
+      uid: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },
+      value: Number,
+    }),
+  ],
   cortes: [String],
 });
 module.exports = mongoose.model("Empleado", EmpleadoSchema);

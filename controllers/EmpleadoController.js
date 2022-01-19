@@ -24,7 +24,7 @@ exports.crearEmpleado = async (req, res = response) => {
     NuevoEmpleado.password = await bcryptjs.hash(password, salt);
     //guardamos en base de datos
     await NuevoEmpleado.save();
-    const { id, nombre, cortes, perfil } = NuevoEmpleado;
+    const { id, nombre, cortes, calificacion, perfil } = NuevoEmpleado;
     //generamos token
     const token = await generarToken(NuevoEmpleado.id, NuevoEmpleado.nombre);
     //respondemos
@@ -36,6 +36,7 @@ exports.crearEmpleado = async (req, res = response) => {
         id,
         nombre,
         cortes,
+        calificacion,
         perfil,
         type: "empleado",
       },
@@ -48,9 +49,9 @@ exports.crearEmpleado = async (req, res = response) => {
     });
   }
 };
-
-exports.updateEmpleado = async (req, res = response) => {
+exports.deleteCortesEmpleado = async (req, res = response) => {
   const emplId = req.params.id;
+  const corteToDelete = req.body.cortes;
 
   try {
     const empleado = await Empleado.findById(emplId);
@@ -67,19 +68,92 @@ exports.updateEmpleado = async (req, res = response) => {
         msg: "Este empleado no tiene permitido actualizar esta informacion",
       });
     }
-    const newEmpleado = { ...req.body };
+    const newCortes = empleado.cortes.filter(
+      (corte) => corte !== corteToDelete
+    );
     const empleadoActualizado = await Empleado.findByIdAndUpdate(
-      id,
-      newEmpleado,
+      emplId,
+      { cortes: newCortes },
       {
         new: true,
       }
     );
-    const { nombre, perfil, cortes } = empleadoActualizado;
+    const { nombre, perfil, cortes, calificacion } = empleadoActualizado;
     res.json({
       ok: true,
-      user: { id, nombre, perfil, cortes, type: "empleado" },
+      user: {
+        id,
+        nombre,
+        perfil,
+        cortes,
+        calificacion,
+        type: "empleado",
+      },
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "error servidor",
+    });
+  }
+};
+exports.updateEmpleado = async (req, res = response) => {
+  const emplId = req.params.id;
+  const calificacion = req.body.calificacion;
+  try {
+    const empleado = await Empleado.findById(emplId);
+    const id = req.id;
+    if (calificacion) {
+      const usuario = await Usuario.findById(id);
+      if (!usuario) {
+        return res.status(404).json({
+          ok: false,
+          msg: "No existe usuario con ese id",
+        });
+      }
+      await actualizandoEmpleado();
+      return;
+    }
+    if (!empleado) {
+      return res.status(404).json({
+        ok: false,
+        msg: "No existe empleado con ese id",
+      });
+    }
+    if (empleado.id !== id) {
+      return res.status(401).json({
+        ok: false,
+        msg: "Este empleado no tiene permitido actualizar esta informacion",
+      });
+    }
+    await actualizandoEmpleado();
+
+    async function actualizandoEmpleado() {
+      const newEmpleado = { ...req.body };
+      const { cortes: newCortes, calificacion: newCalificacion } = newEmpleado;
+      delete newEmpleado.cortes;
+      delete newEmpleado.calificacion;
+      const empleadoActualizado = await Empleado.findByIdAndUpdate(
+        emplId,
+        {
+          $set: { ...newEmpleado },
+          $push: {
+            cortes: newCortes,
+            calificacion: newCalificacion,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+      const { nombre, perfil, cortes, calificacion } = empleadoActualizado;
+      res.json({
+        ok: true,
+        user: { id, nombre, perfil, cortes, calificacion, type: "empleado" },
+      });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -97,7 +171,7 @@ exports.loginEmpleado = async (req, res = response) => {
         ok: false,
         msg: "credenciales incorrectas",
       });
-    const { id, nombre, cortes, perfil } = empleado;
+    const { id, nombre, cortes, calificacion, perfil } = empleado;
     const validPassword = bcryptjs.compareSync(password, empleado.password);
     if (!validPassword) {
       return res.status(400).json({
@@ -114,11 +188,10 @@ exports.loginEmpleado = async (req, res = response) => {
         id,
         nombre,
         cortes,
+        calificacion,
         perfil,
         type: "empleado",
       },
-
-      empleado: { nombre, cortes, perfil },
     });
   } catch (error) {
     console.log(error);

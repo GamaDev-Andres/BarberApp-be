@@ -31,7 +31,7 @@ const renovationToken = async (req, res = response) => {
         },
       });
     } else {
-      const { id, nombre, cortes, perfil } = empleado;
+      const { id, nombre, cortes, calificacion, perfil } = empleado;
       const token = await generarToken(id, nombre);
       res.json({
         ok: true,
@@ -40,6 +40,7 @@ const renovationToken = async (req, res = response) => {
           id,
           nombre,
           cortes: cortes || [],
+          calificacion: calificacion || [],
           perfil: perfil || null,
           type: "empleado",
         },
