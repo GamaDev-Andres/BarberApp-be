@@ -7,11 +7,18 @@ exports.crearCita = async (req, res = response) => {
   const cita = new Cita(req.body);
   try {
     cita.cliente = req.id;
-    const empleado = await Empleado.findById(req.id);
-    if (empleado) {
-      return res.status(401).json({
+    const empleado = await Empleado.findById(req.body.barbero);
+    const user = await Usuario.findById(req.id);
+    if (!user) {
+      return res.status(404).json({
         ok: false,
-        msg: "los empleado no pueden crear citas",
+        msg: "usuario no encontrado",
+      });
+    }
+    if (!empleado) {
+      return res.status(404).json({
+        ok: false,
+        msg: "barbero no encontrado, intente con otro",
       });
     }
     const citaGuardada = await cita.save();
@@ -154,6 +161,7 @@ exports.obtenerCitas = async (req, res = response) => {
         })
       : await Cita.find({ cliente: idSolicitante }).populate("barbero", {
           nombre: 1,
+          perfil: 1,
         });
     res.json({
       ok: true,
